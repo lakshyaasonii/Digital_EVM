@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class DigitalEvmApplication {
 
 	 public static void main(String[] args) {
-		SpringApplication.run(DigitalEvmApplication.class, args);
+		 SpringApplication.run(DigitalEvmApplication.class, args);
 	}
 
 	@Bean

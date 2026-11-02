@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface  VoterRepository extends MongoRepository<Voter, ObjectId> {
      Voter findByAdharNumber(long adharNumber);
      long countByPartyName(String partyName);
+
+     //Total casted votes ka count (jinka partyName null nahi hai)
+     long countByPartyNameIsNotNull();
 }
