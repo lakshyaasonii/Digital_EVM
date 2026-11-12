@@ -1,7 +1,6 @@
 package com.example.digital_evm.Service;
 
 import com.example.digital_evm.Entity.Voter;
-import com.example.digital_evm.Exceptions.AgeNotValidException;
 import com.example.digital_evm.Exceptions.InvalidRequestException;
 import com.example.digital_evm.Repository.VoterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,10 +24,6 @@ public class VoterService {
     //Method for signup (which helps the voter to register himself)
     @Transactional
     public void createVoter(Voter voter){
-        //age validation
-        if(voter.getAge() <18){
-            throw new AgeNotValidException("Age must be greater than 18");
-        }
         //to encrpyt the password
         voter.setPassword(passwordEncoder.encode(voter.getPassword()));
         //to set the role of the entry
@@ -41,7 +34,7 @@ public class VoterService {
     }
 
     @Transactional
-    public void castVote(long adharNumber,String partyName){
+    public void castVote(String adharNumber,String partyName){
         Voter voter = voterRepository.findByAdharNumber(adharNumber);
         if(voter == null){
             throw new InvalidRequestException("Voter not found!");
@@ -55,7 +48,7 @@ public class VoterService {
 
     //Method to get details of any voter
     @Transactional(readOnly = true)
-    public Voter getVoter(long adharNumber){
+    public Voter getVoter(String adharNumber){
         Voter v = voterRepository.findByAdharNumber(adharNumber);
         if(v == null){
             throw new InvalidRequestException("Voter with this adharNumber is not found !!");
@@ -65,7 +58,7 @@ public class VoterService {
 
     //Method to resest or change the password
     @Transactional
-    public void resetPassword(long adharNumber,String newPassword){
+    public void resetPassword(String adharNumber,String newPassword){
         Voter voter = voterRepository.findByAdharNumber(adharNumber);
         if(voter == null){
             throw new InvalidRequestException("Voter with this adharNumber is not found!");
@@ -86,5 +79,22 @@ public class VoterService {
     public long totalVoteCount(){
         long count = voterRepository.countByPartyNameIsNotNull();
         return count;
+    }
+
+    //Method to get all voters details (TEMPORARY METHOD JUST FOR TESTING)
+    @Transactional(readOnly = true)
+    public List<Voter> getAllVoters(){
+        List<Voter> list = voterRepository.findAll();
+        return list;
+    }
+
+    //Method to delete any voter from db (TEMPORARY METHOD JUST FOR TESTING)
+    @Transactional
+    public void deleteVoter(String adharNumber){
+        Voter voter = voterRepository.findByAdharNumber(adharNumber);
+        if(voter == null){
+            throw new InvalidRequestException("Voter with this adharNumber is not found");
+        }
+        voterRepository.deleteByAdharNumber(adharNumber);
     }
 }

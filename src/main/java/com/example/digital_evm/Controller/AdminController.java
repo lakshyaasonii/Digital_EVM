@@ -30,4 +30,17 @@ public class AdminController {
     public ResponseEntity<?> voteCount(){
         return new ResponseEntity<>(voterService.totalVoteCount(),HttpStatus.OK);
     }
+
+    //API to get alll voters(Temporary just for complete DB return)
+    @GetMapping("/allVoters")
+    public ResponseEntity<?> getAll(){
+        return new ResponseEntity<>(voterService.getAllVoters(),HttpStatus.OK);
+    }
+
+    //API to delete any specific voter (Temporary api)
+    @DeleteMapping("/{adharNumber}")
+    public ResponseEntity<?> deleteV(@PathVariable String adharNumber){
+        voterService.deleteVoter(adharNumber);
+        return new ResponseEntity<>("DELETED",HttpStatus.OK);
+    }
 }

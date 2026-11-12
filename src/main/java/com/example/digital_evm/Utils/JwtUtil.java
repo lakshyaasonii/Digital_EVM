@@ -15,10 +15,10 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    // Sir ke code wala secret key format
+    // Secret key to generate token signature using Hmac264 algorithm
     private String SECRET_KEY = "Tak+HaV^uvCHEFsEVfypW#7g9^k*Z8$V";
 
-    // 1. Secret key ko cryptographic key me badalna (Sir ka style)
+    // 1. Secret key ko cryptographic key me badalna
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
@@ -49,28 +49,27 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    // 6. Token generate karna (Map use karke)[cite: 1]
+    // 6. Token generate karna (Map use karke)
     public String generateToken(UserDetails userDeatails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", userDeatails.getAuthorities());
         return createToken(claims,userDeatails.getUsername());
     }
 
-    // 7. Token banane ka main method (Header aur signature ke sath)[cite: 2]
+    // 7. Token banane ka main method (Header aur signature ke sath)
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
                 .header().empty().add("typ", "JWT").and()
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 60 Minutes expiry (jaise sir ka hai)[cite: 2]
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 60 Minutes expiry
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    // 8. Token validate karna (Sir ke style me direct username ke sath)
-    public Boolean validateToken(String token, String username) {
-        String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    // 8. Token validate karna
+    public Boolean validateToken(String token) {
+        return (!isTokenExpired(token));
     }
 }

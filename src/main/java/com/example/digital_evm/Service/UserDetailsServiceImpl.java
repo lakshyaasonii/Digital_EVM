@@ -16,8 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        long adharNumber = Long.parseLong(username);
-        Voter voter = voterRepository.findByAdharNumber(adharNumber);
+        Voter voter = voterRepository.findByAdharNumber(username);
 
         if(voter == null){
             throw new UsernameNotFoundException("User with this adharNumber is not found in DB!!");

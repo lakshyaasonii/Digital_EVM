@@ -1,5 +1,6 @@
 package com.example.digital_evm.Entity;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,14 +22,19 @@ public class Voter { //POJO
 
     private String name;
 
+    @Min(value = 18, message = "Age should be greater than or equal to 18!!")
+    @Max(value = 60, message = "Age must be less than or equal to 60!!")
     private int age;
 
     private String gender;
 
+
     private String partyName;
 
+    @NotBlank(message = "adharNumber is considered as your unique identification key so it should not be null!!")
+    @Pattern(regexp = "^[0-9]{12}$", message = "adharNumber should contains only numeric value and having length 12!!")
     @Indexed(unique = true)
-    private long adharNumber;
+    private String adharNumber;
 
     private String password;
     private List<String> Roles = new ArrayList<>(10000);

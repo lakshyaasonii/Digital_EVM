@@ -4,6 +4,7 @@ import com.example.digital_evm.Entity.Voter;
 import com.example.digital_evm.Service.UserDetailsServiceImpl;
 import com.example.digital_evm.Service.VoterService;
 import com.example.digital_evm.Utils.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +33,16 @@ public class VoterController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/signup") //PUBLIC API
-    public ResponseEntity<?> signUp(@RequestBody Voter voter){
+    public ResponseEntity<?> signUp(@Valid @RequestBody Voter voter){
         voterService.createVoter(voter);
         return new ResponseEntity<>("VOTER SUCESSFULLY REGISTERED",HttpStatus.CREATED);
     }
 
     @PostMapping("/login") //PUBLIC API
     public ResponseEntity<?> login(@RequestBody Voter voter){
-        String adhrString = String.valueOf(voter.getAdharNumber());
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(adhrString,voter.getPassword()));
+        String adhrString = voter.getAdharNumber();
+        String password = voter.getPassword();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(adhrString,password));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(adhrString);
 
@@ -51,7 +53,7 @@ public class VoterController {
     @PostMapping("/cast-vote/{partyName}") //AUTHENTICATED API
     public ResponseEntity<?> castVote(@PathVariable String partyName){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long adharNumber = Long.parseLong(authentication.getName());
+        String adharNumber = authentication.getName();
         voterService.castVote(adharNumber,partyName);
         return new ResponseEntity<>("VOTE CASTED SUCCESFULLY TO THE PARTY: " + partyName,HttpStatus.OK);
     }
@@ -61,16 +63,15 @@ public class VoterController {
     @GetMapping("/get-vote-details") //AUTHENTICATED API
     public ResponseEntity<?> getVoterByAdhar(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();//currently logged in user ki details
-        long adharNumber = Long.parseLong(authentication.getName());
+        String adharNumber = authentication.getName();
         return new ResponseEntity<>(voterService.getVoter(adharNumber),HttpStatus.FOUND);
     }
 
     //for user to reset their password
     @PutMapping("/resest-password")//AUTHENTICATED API
     public ResponseEntity<?> resetPasswordofVoter(@RequestBody Voter voter){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long adharNumber = Long.parseLong(authentication.getName());
-        voterService.resetPassword(adharNumber,voter.getPassword());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); //details of authenticated user
+        voterService.resetPassword(authentication.getName(),voter.getPassword());
         return new ResponseEntity<>("Password reset sucessfully",HttpStatus.CREATED);
     }
 }
